@@ -78,11 +78,11 @@ var game = new Phaser.Game(window.innerWidth - 50, window.innerHeight - 50, Phas
             asteroid.body.velocity.y = (Math.random() * (150 - 10) + 10) - 75;
         };
         
-        createAsteroid(asteroids, 400, 400, 'asteroid128');
-        createAsteroid(asteroids, 400, 400, 'asteroid128');
-        createAsteroid(asteroids, 400, 400, 'asteroid128');
-        createAsteroid(asteroids, 400, 400, 'asteroid128');
-        createAsteroid(asteroids, 400, 400, 'asteroid128');
+        createAsteroid(asteroids, (window.innerWidth - 50) / 2, (window.innerHeight - 50) / 2, 'asteroid128');
+        createAsteroid(asteroids, (window.innerWidth - 50) / 2, (window.innerHeight - 50) / 2, 'asteroid128');
+        createAsteroid(asteroids, (window.innerWidth - 50) / 2, (window.innerHeight - 50) / 2, 'asteroid128');
+        createAsteroid(asteroids, (window.innerWidth - 50) / 2, (window.innerHeight - 50) / 2, 'asteroid128');
+        createAsteroid(asteroids, (window.innerWidth - 50) / 2, (window.innerHeight - 50) / 2, 'asteroid128');
         
         bulletGroup = game.add.group();
         bulletGroup.enableBody = true;
