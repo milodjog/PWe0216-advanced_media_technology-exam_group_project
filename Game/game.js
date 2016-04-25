@@ -64,8 +64,12 @@ var game = new Phaser.Game(window.innerWidth - 50, window.innerHeight - 50, Phas
         
         player.ship = game.add.sprite(400, 0, "ship" + 32 + "sps");
         game.physics.arcade.enable(player.ship);
+        player.ship.anchor.set(0.5, 0.5);
+        player.ship.body.drag.set(0);
+        player.ship.body.maxVelocity.set(300);
         player.ship.body.velocity.x = 0;
         player.ship.body.velocity.y = 0;
+        player.ship.body.angularVelocity = 0;
         player.ship.body.collideWorldBounds = true;
         
         asteroids = game.add.group();
@@ -126,18 +130,20 @@ var game = new Phaser.Game(window.innerWidth - 50, window.innerHeight - 50, Phas
         };
         game.physics.arcade.overlap(player.ship, market, playerShipMarketCollision, null, this);
         
-        if (cursors.left.isDown && player.ship.body.velocity.x > -300) {
-            player.ship.body.velocity.x -= 10;
-        } else if (cursors.right.isDown && player.ship.body.velocity.x < 300) {
-            player.ship.body.velocity.x += 10;
-        } else if (cursors.up.isDown && player.ship.body.velocity.y > -300) {
-            player.ship.body.velocity.y -= 10;
-        } else if (cursors.down.isDown && player.ship.body.velocity.y < 300) {
-            player.ship.body.velocity.y += 10;
-        } else if (shoot.isDown){
+        if (cursors.left.isDown) {
+            player.ship.body.angularVelocity = -100;
+        } else if (cursors.right.isDown) {
+            player.ship.body.angularVelocity = 100;
+        } else if (cursors.up.isDown) {
+            game.physics.arcade.accelerationFromRotation(player.ship.rotation, 150, player.ship.body.acceleration);
+        } else {
+            player.ship.body.angularVelocity = 0;
+            player.ship.body.acceleration.set(0);
+        }
+        
+        if (shoot.isDown){
             this.fire();
-            
-        } 
+        }
     },
     openMarketPlace: function () {
         // TODO: Marketplace dialog.
