@@ -8,7 +8,9 @@
 
 var market;
 
-var playerShip;
+var player = {
+    ship: undefined
+};
 
 var asteroids;
 
@@ -20,7 +22,7 @@ var bulletProperties = {
     speed: 400,
     interval: 250,
     lifeSpan: 2000,
-    maxCount: 30,
+    maxCount: 30
 };
 var shotsInterval = 0;
 
@@ -60,11 +62,11 @@ var game = new Phaser.Game(window.innerWidth - 50, window.innerHeight - 50, Phas
         game.physics.arcade.enable(market);
         market.body.immovable = true;
         
-        playerShip = game.add.sprite(400, 0, "ship" + 32 + "sps");
-        game.physics.arcade.enable(playerShip);
-        playerShip.body.velocity.x = 0;
-        playerShip.body.velocity.y = 0;
-        playerShip.body.collideWorldBounds = true;
+        player.ship = game.add.sprite(400, 0, "ship" + 32 + "sps");
+        game.physics.arcade.enable(player.ship);
+        player.ship.body.velocity.x = 0;
+        player.ship.body.velocity.y = 0;
+        player.ship.body.collideWorldBounds = true;
         
         asteroids = game.add.group();
         asteroids.enableBody = true;
@@ -96,7 +98,7 @@ var game = new Phaser.Game(window.innerWidth - 50, window.innerHeight - 50, Phas
     update: function update() {
         "use strict";
         
-        game.physics.arcade.collide(playerShip, asteroids);
+        game.physics.arcade.collide(player.ship, asteroids);
         
         game.physics.arcade.collide(asteroids, asteroids);
         
@@ -114,44 +116,48 @@ var game = new Phaser.Game(window.innerWidth - 50, window.innerHeight - 50, Phas
         };
         game.physics.arcade.overlap(bulletGroup, market, bulletMarketCollision, null, this);
         
-        var playerShipMarketCollision = function playerShipMarketCollision(playerShip, market) {
-            playerShip.body.velocity.x = 0;
-            playerShip.body.velocity.y = 0;
+        var playerShipMarketCollision = function playerShipMarketCollision(ship, market) {
+            ship.body.velocity.x = 0;
+            ship.body.velocity.y = 0;
             
-            // TODO: Open market place.
+            // TODO: Disable ship damage.
+            this.openMarketPlace();
+            // TODO: Enable ship damage.
         };
-        game.physics.arcade.overlap(playerShip, market, playerShipMarketCollision, null, this);
+        game.physics.arcade.overlap(player.ship, market, playerShipMarketCollision, null, this);
         
-        if (cursors.left.isDown && playerShip.body.velocity.x > -300) {
-            playerShip.body.velocity.x -= 10;
-        } else if (cursors.right.isDown && playerShip.body.velocity.x < 300) {
-            playerShip.body.velocity.x += 10;
-        } else if (cursors.up.isDown && playerShip.body.velocity.y > -300) {
-            playerShip.body.velocity.y -= 10;
-        } else if (cursors.down.isDown && playerShip.body.velocity.y < 300) {
-            playerShip.body.velocity.y += 10;
+        if (cursors.left.isDown && player.ship.body.velocity.x > -300) {
+            player.ship.body.velocity.x -= 10;
+        } else if (cursors.right.isDown && player.ship.body.velocity.x < 300) {
+            player.ship.body.velocity.x += 10;
+        } else if (cursors.up.isDown && player.ship.body.velocity.y > -300) {
+            player.ship.body.velocity.y -= 10;
+        } else if (cursors.down.isDown && player.ship.body.velocity.y < 300) {
+            player.ship.body.velocity.y += 10;
         } else if (shoot.isDown){
             this.fire();
             
         } 
+    },
+    openMarketPlace: function () {
+        // TODO: Marketplace dialog.
     },
     fire: function () {
        if (game.time.now > shotsInterval){ 
            var bullet = bulletGroup.getFirstExists(false);
            
            if (bullet) {
-               var length = playerShip.width * 0.5;
-               var x = playerShip.x + (Math.cos(playerShip.rotation) * length);
-               var y = playerShip.y + (Math.sin(playerShip.rotation) * length);
+               var length = player.ship.width * 0.5;
+               var x = player.ship.x + (Math.cos(player.ship.rotation) * length);
+               var y = player.ship.y + (Math.sin(player.ship.rotation) * length);
                
                bullet.reset(x, y);
                bullet.lifespan = bulletProperties.lifeSpan;
-               bullet.rotation = playerShip.rotation;
+               bullet.rotation = player.ship.rotation;
                
-               game.physics.arcade.velocityFromRotation(playerShip.rotation, bulletProperties.speed, bullet.body.velocity);
+               game.physics.arcade.velocityFromRotation(player.ship.rotation, bulletProperties.speed, bullet.body.velocity);
                
                this.shotsInterval = game.time.now + bulletProperties.interval;
-       
            }
        }  
     }
