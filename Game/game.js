@@ -111,10 +111,10 @@ var game = new Phaser.Game(window.innerWidth - 50, window.innerHeight - 50, Phas
         };
         game.physics.arcade.overlap(bulletGroup, asteroids, bulletGroupAsteroidCollision, null, this);
         
-        var bulletMarketCollision = function bulletMarketCollision(bullet, market) {
+        var bulletMarketCollision = function bulletMarketCollision(market, bullet) {
             bullet.kill();
         };
-        game.physics.arcade.overlap(bulletGroup, market, bulletMarketCollision, null, this);
+        game.physics.arcade.overlap(market, bulletGroup, bulletMarketCollision, null, this);
         
         var playerShipMarketCollision = function playerShipMarketCollision(ship, market) {
             ship.body.velocity.x = 0;
