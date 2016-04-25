@@ -13,6 +13,15 @@ var player = {
 };
 
 var asteroids;
+var asteroid;
+var createAsteroid = function createAsteroid(group, x, y, size) {
+    var asteroid = group.create(x, y, "asteroid" + size);
+    asteroid.body.collideWorldBounds = true;
+    asteroid.body.velocity.x = (Math.random() * (150 - 10) + 10) - 75;
+    asteroid.body.velocity.y = (Math.random() * (150 - 10) + 10) - 75;
+    asteroid.size = size;
+    asteroid.hp = 1 + Math.floor(0.25 * size); // TODO: Find better value.
+};
 
 var cursors;
 
@@ -71,22 +80,19 @@ var game = new Phaser.Game(window.innerWidth - 50, window.innerHeight - 50, Phas
         player.ship.body.velocity.y = 0;
         player.ship.body.angularVelocity = 0;
         player.ship.body.collideWorldBounds = true;
+        player.ship.hp = 1;
+        player.ship.weapon = {
+            damagePerShot: 1
+        };
         
         asteroids = game.add.group();
         asteroids.enableBody = true;
-        var asteroid;
-        var createAsteroid = function createAsteroid(group, x, y, type) {
-            var asteroid = group.create(x, y, type);
-            asteroid.body.collideWorldBounds = true;
-            asteroid.body.velocity.x = (Math.random() * (150 - 10) + 10) - 75;
-            asteroid.body.velocity.y = (Math.random() * (150 - 10) + 10) - 75;
-        };
         
-        createAsteroid(asteroids, (window.innerWidth - 50) / 2, (window.innerHeight - 50) / 2, 'asteroid128');
-        createAsteroid(asteroids, (window.innerWidth - 50) / 2, (window.innerHeight - 50) / 2, 'asteroid128');
-        createAsteroid(asteroids, (window.innerWidth - 50) / 2, (window.innerHeight - 50) / 2, 'asteroid128');
-        createAsteroid(asteroids, (window.innerWidth - 50) / 2, (window.innerHeight - 50) / 2, 'asteroid128');
-        createAsteroid(asteroids, (window.innerWidth - 50) / 2, (window.innerHeight - 50) / 2, 'asteroid128');
+        createAsteroid(asteroids, (window.innerWidth - 50) / 2, (window.innerHeight - 50) / 2, 128);
+        createAsteroid(asteroids, (window.innerWidth - 50) / 2, (window.innerHeight - 50) / 2, 128);
+        createAsteroid(asteroids, (window.innerWidth - 50) / 2, (window.innerHeight - 50) / 2, 128);
+        createAsteroid(asteroids, (window.innerWidth - 50) / 2, (window.innerHeight - 50) / 2, 128);
+        createAsteroid(asteroids, (window.innerWidth - 50) / 2, (window.innerHeight - 50) / 2, 128);
         
         bulletGroup = game.add.group();
         bulletGroup.enableBody = true;
@@ -102,23 +108,39 @@ var game = new Phaser.Game(window.innerWidth - 50, window.innerHeight - 50, Phas
     update: function update() {
         "use strict";
         
-        game.physics.arcade.collide(player.ship, asteroids);
-        
-        game.physics.arcade.collide(asteroids, asteroids);
+        var playerShipAsteroidCollision = function playerShipAsteroidCollision(asteroid, ship) {
+            player.ship.hp -= 1;
+            if (player.ship.hp <= 0) {
+                location.reload();
+            }
+        };
+        game.physics.arcade.collide(asteroids, player.ship, playerShipAsteroidCollision, null, this);
+
+        var asteroidAsteroidCollision = function asteroidAsteroidCollision(asteroid1, asteroid2) {
+            // TODO: If sensible, refactor relevant parts of bulletGroupAsteroidCollision out into a function that can also be used here.
+        };
+        game.physics.arcade.collide(asteroids, asteroids, asteroidAsteroidCollision, null, this);
         
         game.physics.arcade.collide(market, asteroids);
         
         var bulletGroupAsteroidCollision = function bulletGroupAsteroidCollision(bullet, asteroid) {
-            // TODO: Real implementation.
-            console.log("bulletAsteroidCollision");
             bullet.kill();
+            asteroid.hp -= player.ship.weapon.damagePerShot;
+            if (asteroid.hp <= 0) {
+                if (asteroid.size >= 16) {
+                    createAsteroid(asteroids, asteroid.x, asteroid.y, asteroid.size / 2); // TODO: Sometimes create resouce instead.
+                    createAsteroid(asteroids, asteroid.x, asteroid.y, asteroid.size / 2); // TODO: Sometimes create resouce instead.
+                    // TODO: Sometimes create a resource of the smallest size too.
+                }
+                asteroid.kill();
+            }
         };
         game.physics.arcade.overlap(bulletGroup, asteroids, bulletGroupAsteroidCollision, null, this);
         
         var bulletMarketCollision = function bulletMarketCollision(market, bullet) {
             bullet.kill();
         };
-        game.physics.arcade.overlap(market, bulletGroup, bulletMarketCollision, null, this);
+        game.physics.arcade.collide(market, bulletGroup, bulletMarketCollision, null, this);
         
         var playerShipMarketCollision = function playerShipMarketCollision(ship, market) {
             ship.body.velocity.x = 0;
@@ -128,7 +150,7 @@ var game = new Phaser.Game(window.innerWidth - 50, window.innerHeight - 50, Phas
             this.openMarketPlace();
             // TODO: Enable ship damage.
         };
-        game.physics.arcade.overlap(player.ship, market, playerShipMarketCollision, null, this);
+        game.physics.arcade.collide(player.ship, market, playerShipMarketCollision, null, this);
         
         if (cursors.left.isDown) {
             player.ship.body.angularVelocity = -100;
