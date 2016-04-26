@@ -127,7 +127,7 @@ var game = new Phaser.Game(window.innerWidth - 50, window.innerHeight - 50, Phas
             bullet.kill();
             asteroid.hp -= player.ship.weapon.damagePerShot;
             if (asteroid.hp <= 0) {
-                if (asteroid.size >= 16) {
+                if (asteroid.size > 16) {
                     createAsteroid(asteroids, asteroid.x, asteroid.y, asteroid.size / 2); // TODO: Sometimes create resouce instead.
                     createAsteroid(asteroids, asteroid.x, asteroid.y, asteroid.size / 2); // TODO: Sometimes create resouce instead.
                     // TODO: Sometimes create a resource of the smallest size too.
