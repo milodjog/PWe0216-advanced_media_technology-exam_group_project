@@ -81,6 +81,7 @@ var game = new Phaser.Game(window.innerWidth - 50, window.innerHeight - 50, Phas
         player.ship.body.angularVelocity = 0;
         player.ship.body.collideWorldBounds = true;
         player.ship.hp = 1;
+        player.ship.speed = 100;
         player.ship.weapon = {
             damagePerShot: 1
         };
@@ -174,7 +175,7 @@ var game = new Phaser.Game(window.innerWidth - 50, window.innerHeight - 50, Phas
         } else if (cursors.right.isDown) {
             player.ship.body.angularVelocity = 100;
         } else if (cursors.up.isDown) {
-            game.physics.arcade.accelerationFromRotation(player.ship.rotation, 150, player.ship.body.acceleration);
+            game.physics.arcade.accelerationFromRotation(player.ship.rotation, player.ship.speed, player.ship.body.acceleration);
         } else {
             player.ship.body.angularVelocity = 0;
             player.ship.body.acceleration.set(0);
