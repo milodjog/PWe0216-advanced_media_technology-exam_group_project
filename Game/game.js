@@ -128,9 +128,26 @@ var game = new Phaser.Game(window.innerWidth - 50, window.innerHeight - 50, Phas
             asteroid.hp -= player.ship.weapon.damagePerShot;
             if (asteroid.hp <= 0) {
                 if (asteroid.size > 16) {
-                    createAsteroid(asteroids, asteroid.x, asteroid.y, asteroid.size / 2); // TODO: Sometimes create resouce instead.
-                    createAsteroid(asteroids, asteroid.x, asteroid.y, asteroid.size / 2); // TODO: Sometimes create resouce instead.
-                    // TODO: Sometimes create a resource of the smallest size too.
+                    // Child-asteroid one.
+                    if (true /* TODO: Change to 0.95 when resource creation is ready. */) {
+                        createAsteroid(asteroids, asteroid.x, asteroid.y, asteroid.size / 2);
+                    } else {
+                        // TODO: Create resouce of (asteroid.size / 2) instead.
+                    }
+                    
+                    // Child-asteroid two.
+                    if (true /* TODO: Change to 0.95 when resource creation is ready. */) {
+                        createAsteroid(asteroids, asteroid.x, asteroid.y, asteroid.size / 2);
+                    } else {
+                        // TODO: Create resouce of (asteroid.size / 2) instead.
+                    }
+
+                    // Random resource.
+                    if (Math.random() <= 0.10) {
+                        // TODO: Create a resource of the smallest size too.
+                    }
+                } else {
+                    // TODO: Create two resources of the smallest size.
                 }
                 asteroid.kill();
             }
