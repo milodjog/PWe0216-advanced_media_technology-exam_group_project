@@ -30,7 +30,7 @@ var bulletGroup;
 var bulletProperties = {
     speed: 400,
     interval: 250,
-    lifeSpan: 2000,
+    lifeSpan: 3000,
     maxCount: 30
 };
 var shotsInterval = 0;
