@@ -14,7 +14,7 @@ var player = {
 
 var asteroids;
 var asteroid;
-var createAsteroid = function createAsteroid(group, x, y, size) {
+var createAsteroid = function (group, x, y, size) {
     var asteroid = group.create(x, y, "asteroid" + size);
     asteroid.body.collideWorldBounds = true;
     asteroid.body.velocity.x = (Math.random() * (150 - 10) + 10) - 75;
@@ -36,7 +36,7 @@ var bulletProperties = {
 var shotsInterval = 0;
 
 var game = new Phaser.Game(window.innerWidth - 50, window.innerHeight - 50, Phaser.AUTO, "gameArea", {
-    preload: function preload() {
+    preload: function () {
         "use strict";
         
         game.load.crossOrigin = "anonymous";
@@ -59,7 +59,7 @@ var game = new Phaser.Game(window.innerWidth - 50, window.innerHeight - 50, Phas
         
         game.load.image("bullet","/assets/sprites/bullet.png");
     },
-    create: function create() {
+    create: function () {
         "use strict";
         
         game.physics.startSystem(Phaser.Physics.ARCADE);
@@ -106,10 +106,10 @@ var game = new Phaser.Game(window.innerWidth - 50, window.innerHeight - 50, Phas
         cursors = game.input.keyboard.createCursorKeys();
         shoot = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
     },
-    update: function update() {
+    update: function () {
         "use strict";
         
-        var playerShipAsteroidCollision = function playerShipAsteroidCollision(asteroid, ship) {
+        var playerShipAsteroidCollision = function (asteroid, ship) {
             player.ship.hp -= 1;
             if (player.ship.hp <= 0) {
                 location.reload();
@@ -117,14 +117,14 @@ var game = new Phaser.Game(window.innerWidth - 50, window.innerHeight - 50, Phas
         };
         game.physics.arcade.collide(asteroids, player.ship, playerShipAsteroidCollision, null, this);
 
-        var asteroidAsteroidCollision = function asteroidAsteroidCollision(asteroid1, asteroid2) {
+        var asteroidAsteroidCollision = function (asteroid1, asteroid2) {
             // TODO: If sensible, refactor relevant parts of bulletGroupAsteroidCollision out into a function that can also be used here.
         };
         game.physics.arcade.collide(asteroids, asteroids, asteroidAsteroidCollision, null, this);
         
         game.physics.arcade.collide(market, asteroids);
         
-        var bulletGroupAsteroidCollision = function bulletGroupAsteroidCollision(bullet, asteroid) {
+        var bulletGroupAsteroidCollision = function (bullet, asteroid) {
             bullet.kill();
             asteroid.hp -= player.ship.weapon.damagePerShot;
             if (asteroid.hp <= 0) {
@@ -155,12 +155,12 @@ var game = new Phaser.Game(window.innerWidth - 50, window.innerHeight - 50, Phas
         };
         game.physics.arcade.overlap(bulletGroup, asteroids, bulletGroupAsteroidCollision, null, this);
         
-        var bulletMarketCollision = function bulletMarketCollision(market, bullet) {
+        var bulletMarketCollision = function (market, bullet) {
             bullet.kill();
         };
         game.physics.arcade.collide(market, bulletGroup, bulletMarketCollision, null, this);
         
-        var playerShipMarketCollision = function playerShipMarketCollision(ship, market) {
+        var playerShipMarketCollision = function (ship, market) {
             ship.body.velocity.x = 0;
             ship.body.velocity.y = 0;
             
