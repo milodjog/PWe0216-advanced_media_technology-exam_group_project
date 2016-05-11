@@ -1,11 +1,3 @@
-/*jslint
-    browser:true,
-    devel:true
-*/
-/*global
-    Phaser
-*/
-
 var market;
 
 var player = {
