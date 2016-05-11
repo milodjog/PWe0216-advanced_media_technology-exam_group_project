@@ -5,14 +5,32 @@ var player = {
 };
 
 var asteroids;
-var asteroid;
 var createAsteroid = function (group, x, y, size) {
+    "use strict";
+    
     var asteroid = group.create(x, y, "asteroid" + size);
     asteroid.body.collideWorldBounds = true;
     asteroid.body.velocity.x = ((Math.random() * (150 - 10)) + 10) - 75;
     asteroid.body.velocity.y = ((Math.random() * (150 - 10)) + 10) - 75;
     asteroid.size = size;
     asteroid.hp = 1 + Math.floor(0.25 * size); // TODO: Find better value.
+};
+
+var resources;
+var createResource = function (group, x, y, size, resourceType) {
+    "use strict";
+    
+    if (typeof(resourceType === "undefined")) {
+        resourceType = Math.floor((Math.random() * 7) + 1);
+    }
+    var resource = group.create(x, y, "resource" + size + "sps");
+    resource.body.collideWorldBounds = true;
+    resource.body.velocity.x = ((Math.random() * (150 - 10)) + 10) - 75;
+    resource.body.velocity.y = ((Math.random() * (150 - 10)) + 10) - 75;
+    resource.size = size;
+    resource.type = resourceType;
+    resource.hp = 1 + Math.floor(0.25 * size); // TODO: Find better value. Should it be related to the resource.type too?
+    // TODO: Use resource.type to show the correct graphics.
 };
 
 var cursors;
@@ -26,6 +44,12 @@ var bulletProperties = {
     maxCount: 30
 };
 var shotsInterval = 0;
+
+var shipDestroyed = function () {
+    "use strict";
+    
+    location.reload();
+}
 
 var game = new Phaser.Game(window.innerWidth - 50, window.innerHeight - 50, Phaser.AUTO, "gameArea", {
     preload: function () {
@@ -53,6 +77,7 @@ var game = new Phaser.Game(window.innerWidth - 50, window.innerHeight - 50, Phas
     },
     create: function () {
         "use strict";
+        var initialShipSize = 32;
         
         game.physics.startSystem(Phaser.Physics.ARCADE);
         
@@ -63,8 +88,9 @@ var game = new Phaser.Game(window.innerWidth - 50, window.innerHeight - 50, Phas
         game.physics.arcade.enable(market);
         market.body.immovable = true;
         
-        player.ship = game.add.sprite(400, 0, "ship" + 32 + "sps");
+        player.ship = game.add.sprite(400, 0, "ship" + initialShipSize + "sps");
         game.physics.arcade.enable(player.ship);
+        player.ship.size = initialShipSize;
         player.ship.anchor.set(0.5, 0.5);
         player.ship.body.drag.set(0);
         player.ship.body.maxVelocity.set(300);
@@ -87,6 +113,9 @@ var game = new Phaser.Game(window.innerWidth - 50, window.innerHeight - 50, Phas
         createAsteroid(asteroids, (window.innerWidth - 50) / 2, (window.innerHeight - 50) / 2, 128);
         createAsteroid(asteroids, (window.innerWidth - 50) / 2, (window.innerHeight - 50) / 2, 128);
         
+        resources = game.add.group();
+        resources.enableBody = true;
+        
         bulletGroup = game.add.group();
         bulletGroup.enableBody = true;
         bulletGroup.physicsBodyType = Phaser.Physics.ARCADE;
@@ -101,15 +130,33 @@ var game = new Phaser.Game(window.innerWidth - 50, window.innerHeight - 50, Phas
     update: function () {
         "use strict";
         
-        var playerShipAsteroidCollision = function (asteroid, ship) {
+        var playerShipAsteroidCollision = function (ship, asteroid) {
+            "use strict";
+            
             player.ship.hp -= 1;
             if (player.ship.hp <= 0) {
-                location.reload();
+                shipDestroyed();
             }
         };
         game.physics.arcade.collide(asteroids, player.ship, playerShipAsteroidCollision, null, this);
-
+        
+        var playerShipResourceCollision = function (ship, resource) {
+            "use strict";
+            if (resource.size < ship.size) {
+                // TODO: Record how much of what type of resouce was picked up.
+                resource.kill();
+            } else {
+                player.ship.hp -= 1;
+                if (player.ship.hp <= 0) {
+                    shipDestroyed();
+                }
+            }
+        };
+        game.physics.arcade.collide(resources, player.ship, playerShipResourceCollision, null, this);
+        
         var asteroidAsteroidCollision = function (asteroid1, asteroid2) {
+            "use strict";
+            
             // TODO: If sensible, refactor relevant parts of bulletGroupAsteroidCollision out into a function that can also be used here.
         };
         game.physics.arcade.collide(asteroids, asteroids, asteroidAsteroidCollision, null, this);
@@ -117,42 +164,87 @@ var game = new Phaser.Game(window.innerWidth - 50, window.innerHeight - 50, Phas
         game.physics.arcade.collide(market, asteroids);
         
         var bulletGroupAsteroidCollision = function (bullet, asteroid) {
+            "use strict";
+            
+            var resourcePropability = 0.025;
+            var extraResourcePropability = 0.05;
+            
             bullet.kill();
             asteroid.hp -= player.ship.weapon.damagePerShot;
             if (asteroid.hp <= 0) {
                 if (asteroid.size > 16) {
                     // Child-asteroid one.
-                    if (true /* TODO: Change to 0.95 when resource creation is ready. */) {
+                    if (Math.random() >= resourcePropability) {
                         createAsteroid(asteroids, asteroid.x, asteroid.y, asteroid.size / 2);
                     } else {
-                        // TODO: Create resouce of (asteroid.size / 2) instead.
+                        createResource(resources, asteroid.x, asteroid.y, asteroid.size / 2, undefined);
                     }
                     
                     // Child-asteroid two.
-                    if (true /* TODO: Change to 0.95 when resource creation is ready. */) {
+                    if (Math.random() >= resourcePropability) {
                         createAsteroid(asteroids, asteroid.x, asteroid.y, asteroid.size / 2);
                     } else {
-                        // TODO: Create resouce of (asteroid.size / 2) instead.
+                        createResource(resources, asteroid.x, asteroid.y, asteroid.size / 2, undefined);
                     }
 
                     // Random resource.
-                    if (Math.random() <= 0.10) {
-                        // TODO: Create a resource of the smallest size too.
+                    if (Math.random() <= extraResourcePropability) {
+                        createResource(resources, asteroid.x, asteroid.y, 8, undefined);
                     }
                 } else {
-                    // TODO: Create two resources of the smallest size.
+                    createResource(resources, asteroid.x, asteroid.y, 8, undefined);
+                    createResource(resources, asteroid.x, asteroid.y, 8, undefined);
                 }
                 asteroid.kill();
             }
         };
         game.physics.arcade.overlap(bulletGroup, asteroids, bulletGroupAsteroidCollision, null, this);
         
+        var resourceResourceCollision = function (resource1, resource2) {
+            "use strict";
+            
+            // TODO: If sensible, refactor relevant parts of bulletGroupAsteroidCollision or equivalent resource function out into a function that can also be used here.
+            // TODO: When non-minimal size resource is hit it should break down and skip every other size to encourage players to get larger ships.
+        };
+        game.physics.arcade.collide(resources, resources, resourceResourceCollision, null, this);
+        
+        game.physics.arcade.collide(market, resources);
+        
+        var bulletGroupResourceCollision = function (bullet, resource) {
+            "use strict";
+            
+            var extraResourcePropability = 0.05;
+            
+            bullet.kill();
+            resource.hp -= player.ship.weapon.damagePerShot;
+            if (resource.hp <= 0) {
+                if (resource.size > 16) {
+                    // Child-resource one.
+                    createResource(resources, resource.x, resource.y, resource.size / 2, resource.type);
+                    
+                    // Child-resource two.
+                    createResource(resources, resource.x, resource.y, resource.size / 2, resource.type);
+
+                    // Random resource.
+                    if (Math.random() <= extraResourcePropability) {
+                        createResource(resources, resource.x, resource.y, 8, undefined);
+                    }
+                }
+                resource.kill();
+            }
+        };
+        game.physics.arcade.overlap(bulletGroup, resources, bulletGroupResourceCollision, null, this);
+
         var bulletMarketCollision = function (market, bullet) {
+            "use strict";
+            
             bullet.kill();
         };
         game.physics.arcade.collide(market, bulletGroup, bulletMarketCollision, null, this);
         
         var playerShipMarketCollision = function (ship, market) {
+            "use strict";
+            
             ship.body.velocity.x = 0;
             ship.body.velocity.y = 0;
             
@@ -178,9 +270,13 @@ var game = new Phaser.Game(window.innerWidth - 50, window.innerHeight - 50, Phas
         }
     },
     openMarketPlace: function () {
+        "use strict";
+        
         // TODO: Marketplace dialog.
     },
     fire: function () {
+        "use strict";
+        
        if (game.time.now > shotsInterval){ 
            var bullet = bulletGroup.getFirstExists(false);
            
