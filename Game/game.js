@@ -17,8 +17,8 @@ var asteroid;
 var createAsteroid = function (group, x, y, size) {
     var asteroid = group.create(x, y, "asteroid" + size);
     asteroid.body.collideWorldBounds = true;
-    asteroid.body.velocity.x = (Math.random() * (150 - 10) + 10) - 75;
-    asteroid.body.velocity.y = (Math.random() * (150 - 10) + 10) - 75;
+    asteroid.body.velocity.x = ((Math.random() * (150 - 10)) + 10) - 75;
+    asteroid.body.velocity.y = ((Math.random() * (150 - 10)) + 10) - 75;
     asteroid.size = size;
     asteroid.hp = 1 + Math.floor(0.25 * size); // TODO: Find better value.
 };
