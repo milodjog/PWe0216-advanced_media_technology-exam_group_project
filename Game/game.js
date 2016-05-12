@@ -30,7 +30,7 @@ var bulletGroup;
 var bulletProperties = {
     speed: 400,
     interval: 250,
-    lifeSpan: 2000,
+    lifeSpan: 3000,
     maxCount: 30
 };
 var shotsInterval = 0;
@@ -81,6 +81,7 @@ var game = new Phaser.Game(window.innerWidth - 50, window.innerHeight - 50, Phas
         player.ship.body.angularVelocity = 0;
         player.ship.body.collideWorldBounds = true;
         player.ship.hp = 1;
+        player.ship.speed = 100;
         player.ship.weapon = {
             damagePerShot: 1
         };
@@ -128,9 +129,26 @@ var game = new Phaser.Game(window.innerWidth - 50, window.innerHeight - 50, Phas
             asteroid.hp -= player.ship.weapon.damagePerShot;
             if (asteroid.hp <= 0) {
                 if (asteroid.size > 16) {
-                    createAsteroid(asteroids, asteroid.x, asteroid.y, asteroid.size / 2); // TODO: Sometimes create resouce instead.
-                    createAsteroid(asteroids, asteroid.x, asteroid.y, asteroid.size / 2); // TODO: Sometimes create resouce instead.
-                    // TODO: Sometimes create a resource of the smallest size too.
+                    // Child-asteroid one.
+                    if (true /* TODO: Change to 0.95 when resource creation is ready. */) {
+                        createAsteroid(asteroids, asteroid.x, asteroid.y, asteroid.size / 2);
+                    } else {
+                        // TODO: Create resouce of (asteroid.size / 2) instead.
+                    }
+                    
+                    // Child-asteroid two.
+                    if (true /* TODO: Change to 0.95 when resource creation is ready. */) {
+                        createAsteroid(asteroids, asteroid.x, asteroid.y, asteroid.size / 2);
+                    } else {
+                        // TODO: Create resouce of (asteroid.size / 2) instead.
+                    }
+
+                    // Random resource.
+                    if (Math.random() <= 0.10) {
+                        // TODO: Create a resource of the smallest size too.
+                    }
+                } else {
+                    // TODO: Create two resources of the smallest size.
                 }
                 asteroid.kill();
             }
@@ -157,7 +175,7 @@ var game = new Phaser.Game(window.innerWidth - 50, window.innerHeight - 50, Phas
         } else if (cursors.right.isDown) {
             player.ship.body.angularVelocity = 100;
         } else if (cursors.up.isDown) {
-            game.physics.arcade.accelerationFromRotation(player.ship.rotation, 150, player.ship.body.acceleration);
+            game.physics.arcade.accelerationFromRotation(player.ship.rotation, player.ship.speed, player.ship.body.acceleration);
         } else {
             player.ship.body.angularVelocity = 0;
             player.ship.body.acceleration.set(0);
